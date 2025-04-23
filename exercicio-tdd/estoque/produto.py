@@ -31,7 +31,7 @@ class Produto:
         return self.quantidade < self.minimo
 
     def expirado(self):
-        return self.validade and self.validade < date.today()
+        return self.validade is not None and self.validade < date.today()
 
     def perdas_por_validade(self):
         if self.expirado():

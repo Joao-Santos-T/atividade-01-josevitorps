@@ -21,10 +21,20 @@ def test_validade_expirada():
     p = Produto("Iogurte", 2, 10, validade=ontem)
     assert p.expirado() is True
 
+def test_validade_nao_expirada():
+    amanha = date.today() + timedelta(days=1)
+    p = Produto("Queijo", 5, 2, validade=amanha)
+    assert p.expirado() is False
+
 def test_perdas_por_validade():
     ontem = date.today() - timedelta(days=1)
     p = Produto("Pão", 3, 4, validade=ontem)
     assert p.perdas_por_validade() == 12
+
+def test_perdas_por_validade_valido():
+    amanha = date.today() + timedelta(days=1)
+    p = Produto("Bolo", 5, 3, validade=amanha)
+    assert p.perdas_por_validade() == 0
 
 def test_valores_negativos():
     with pytest.raises(ValueError):
@@ -43,3 +53,7 @@ def test_movimentacoes():
     p.adicionar_estoque(5)
     p.remover_estoque(3)
     assert p.movimentacoes == [("entrada", 5), ("saida", 3)]
+
+def test_produto_sem_validade_nao_expirado():
+    p = Produto("Arroz", 5, 10)  # validade é None
+    assert p.expirado() is False
