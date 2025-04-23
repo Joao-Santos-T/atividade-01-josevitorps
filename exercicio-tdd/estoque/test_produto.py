@@ -1,43 +1,45 @@
-"""
-Testes da classe Produto.
-"""
-import unittest
-from datetime import datetime, timedelta
+import pytest
+from datetime import date, timedelta
+from estoque.produto import Produto
 
-from produto import Produto
+def test_valor_total():
+    p = Produto("Sabão", 10, 5)
+    assert p.valor_total() == 50
 
+def test_adicionar_remover_estoque():
+    p = Produto("Café", 10, 10)
+    p.adicionar_estoque(5)
+    p.remover_estoque(3)
+    assert p.quantidade == 12
 
-class TestProduto(unittest.TestCase):
-    """Testa a classe Produto."""
+def test_estoque_baixo():
+    p = Produto("Leite", 5, 3, minimo=5)
+    assert p.estoque_baixo() is True
 
-    def setUp(self):
-        """Configura o ambiente de teste."""
-        raise NotImplementedError()
+def test_validade_expirada():
+    ontem = date.today() - timedelta(days=1)
+    p = Produto("Iogurte", 2, 10, validade=ontem)
+    assert p.expirado() is True
 
-    def test_inicializacao(self):
-        """Verifica se o produto é inicializado corretamente."""
-        raise NotImplementedError()
+def test_perdas_por_validade():
+    ontem = date.today() - timedelta(days=1)
+    p = Produto("Pão", 3, 4, validade=ontem)
+    assert p.perdas_por_validade() == 12
 
-    def test_adicionar_estoque(self):
-        """Verifica se o estoque é adicionado corretamente."""
-        raise NotImplementedError()
+def test_valores_negativos():
+    with pytest.raises(ValueError):
+        Produto("Erro", -1, 10)
 
-    def test_remover_estoque(self):
-        """Verifica se o estoque é removido corretamente."""
-        raise NotImplementedError()
+    with pytest.raises(ValueError):
+        Produto("Erro", 1, -10)
 
-    def test_verificar_estoque_baixo(self):
-        """Verifica se a detecção de estoque baixo funciona corretamente."""
-        raise NotImplementedError()
+def test_remover_mais_que_estoque():
+    p = Produto("Água", 2, 5)
+    with pytest.raises(ValueError):
+        p.remover_estoque(6)
 
-    def test_calcular_valor_total(self):
-        """Verifica se o valor total é calculado corretamente."""
-        raise NotImplementedError()
-
-    def test_verificar_validade(self):
-        """Verifica se a validação de data de validade funciona corretamente."""
-        raise NotImplementedError()
-
-
-if __name__ == "__main__":
-    unittest.main() 
+def test_movimentacoes():
+    p = Produto("Feijão", 4, 10)
+    p.adicionar_estoque(5)
+    p.remover_estoque(3)
+    assert p.movimentacoes == [("entrada", 5), ("saida", 3)]
